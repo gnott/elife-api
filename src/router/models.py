@@ -2,6 +2,7 @@ from django.db import models
 import requests
 import json
 from xml.etree import ElementTree
+from elifetools import parseJATS as parser
 
 # Create your models here.
 
@@ -218,3 +219,54 @@ class MediaFile(eLifeFile):
         
         url = self.glencoe_api_base_url + self.glencoe_metadata_endpoint + self.get_doi()
         return url
+    
+class eLifeArticle():
+    """
+    eLife Article data
+    """
+    def __init__ (self, doi):
+        self.doi = doi
+        self.base_url =  "http://s3.amazonaws.com/elife-cdn/elife-articles/"
+
+    def get_doi_id(self):
+        """
+        Parse DOI value which can be number or string
+        """
+        try:
+            return int(self.doi)
+        except ValueError:
+            return int(self.doi.split('.')[-1])
+
+    def xml_file_name (self):
+
+        return (self.base_url
+                + str(self.get_doi_id()).zfill(5)
+                + '/' + 'elife'
+                + str(self.get_doi_id()).zfill(5) + '.xml')
+    
+    def parse(self):
+        
+        url = self.xml_file_name()
+        if url is None:
+            return None
+        
+        r = requests.get(url, allow_redirects=True)
+        
+        if r.status_code == requests.codes.ok:
+            article_xml = r.content
+        else:
+            article_xml = None
+        
+        if article_xml:
+            soup = parser.parse_xml(article_xml)
+            
+            properties = ["doi", "article_type", "related_article", "title", "pub_date_date", "authors"]
+            for property in properties:
+                try:
+                    setattr(self, property, getattr(parser, property)(soup))
+                except:
+                    pass
+        else:
+            return None
+        
+        return True

@@ -174,4 +174,78 @@ def media_xlink_format(request, doi, xlink, type):
     """
     return media(request, doi, xlink, type)
 
+@api_view(['GET'])
+def related_article(request, doi, type = None):
+    """
+    Get related articles and details about those articles
+    """
+      
+    article = eLifeArticle(doi)
+    
+    data = []
+    notes = []
+
+    parse_success = article.parse()
+    
+    # Article does not exist, return 404 now
+    if parse_success is None:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        
+        # Check for related articles
+        if hasattr(article, "related_article"):
+            item = {}
+            item['doi'] = article.doi
+            item['doi_id'] = article.get_doi_id()
+            item['pub_date'] = article.pub_date_date
+            item['article_type'] = article.article_type
+            item['title'] = article.title
+            item['authors'] = []
+            for author in article.authors:
+                item['authors'].append(author.get("surname"))
+            item['related_article'] = []
+            
+            for related_article in article.related_article:
+                related_item = {}
+                if related_article.get("ext_link_type") == "doi":
+    
+                    related_item['doi'] = related_article.get("xlink_href")
+    
+                    related_item['related_article_type'] = related_article.get("related_article_type")
+    
+                    # Parse the related article
+                    related_article_article = eLifeArticle(related_article.get("xlink_href"))
+                    related_article_article.parse()
+                    related_item['doi_id'] = related_article_article.get_doi_id()
+                    related_item['pub_date'] = related_article_article.pub_date_date
+                    related_item['article_type'] = related_article_article.article_type
+                    related_item['title'] = related_article_article.title
+                    related_item['authors'] = []
+                    for author in related_article_article.authors:
+                        related_item['authors'].append(author.get("surname"))
+                    
+                item['related_article'].append(related_item)
+                
+            data.append(item)
+        else:
+            # Append notes
+            #notes.append('%s does not exist' % pdf.get_url())
+            pass
+           
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    response_list = {}
+    response_list['data'] = data
+        
+    # Add metadata
+    if len(notes) > 0:
+        response_list['notes'] = notes
+    response_list['results'] = len(data)
+
+    return Response(response_list)
+
+
+
     
