@@ -3,6 +3,7 @@ import requests
 import json
 from xml.etree import ElementTree
 from elifetools import parseJATS as parser
+from elifedbtools import *
 
 # Create your models here.
 
@@ -220,53 +221,56 @@ class MediaFile(eLifeFile):
         url = self.glencoe_api_base_url + self.glencoe_metadata_endpoint + self.get_doi()
         return url
     
-class eLifeArticle():
+
+def article_related_article(doi, link_type="doi"):
     """
-    eLife Article data
+    Given a DOI, get related articles, if any
     """
-    def __init__ (self, doi):
-        self.doi = doi
-        self.base_url =  "http://s3.amazonaws.com/elife-cdn/elife-articles/"
-
-    def get_doi_id(self):
-        """
-        Parse DOI value which can be number or string
-        """
-        try:
-            return int(self.doi)
-        except ValueError:
-            return int(self.doi.split('.')[-1])
-
-    def xml_file_name (self):
-
-        return (self.base_url
-                + str(self.get_doi_id()).zfill(5)
-                + '/' + 'elife'
-                + str(self.get_doi_id()).zfill(5) + '.xml')
-    
-    def parse(self):
-        
-        url = self.xml_file_name()
-        if url is None:
-            return None
-        
-        r = requests.get(url, allow_redirects=True)
-        
-        if r.status_code == requests.codes.ok:
-            article_xml = r.content
-        else:
-            article_xml = None
-        
-        if article_xml:
-            soup = parser.parse_xml(article_xml)
+    #return elifedbtools.related(doi)
+    if doi == 'a':
+        return [{'from_doi': 'a',
+                 'to_doi':   'b',
+                 'ext_link_type': 'doi',
+                 'related_article_type': 'commentary-article',
+                 'xlink_href': 'b'
+                 },
             
-            properties = ["doi", "article_type", "related_article", "title", "pub_date_date", "authors"]
-            for property in properties:
-                try:
-                    setattr(self, property, getattr(parser, property)(soup))
-                except:
-                    pass
-        else:
-            return None
-        
-        return True
+                {'from_doi': 'a',
+                 'to_doi':   'c',
+                 'ext_link_type': 'doi',
+                 'related_article_type': 'commentary-article',
+                 'xlink_href': 'c'
+                 }
+                ]
+    else:
+        return []
+
+def article_meta(doi):
+    """
+    Given a DOI, get article details
+    """
+    #return elifedbtools.article(doi)
+    if doi == 'a':
+        return {'title': 'a title',
+                'doi': doi,
+                'doi_id': doi,
+                'pub_date': '2015-01-01',
+                'article_type': 'research-article'}
+    if doi == 'b':
+        return {'title': 'b title',
+                'doi': doi,
+                'doi_id': doi,
+                'pub_date': '2015-02-02',
+                'article_type': 'research-article'}
+    if doi == 'c':
+        return {'title': 'c title',
+                'doi': doi,
+                'doi_id': doi,
+                'pub_date': '2015-03-03',
+                'article_type': 'research-article'}
+    if doi == 'd':
+        return {'title': 'd title',
+                'doi': doi,
+                'doi_id': doi,
+                'pub_date': '2015-04-03',
+                'article_type': 'research-article'}

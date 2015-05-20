@@ -3,4 +3,5 @@ PyYAML==3.11
 djangorestframework==2.4.4
 django-rest-swagger==0.2.0
 requests==2.4.3
-git+https://github.com/elifesciences/elife-tools.git@master#egg=elifetools
+elifetools==0.1.2
+git+https://github.com/gnott/elife-db-tools.git@dev#egg=elifedbtools
