@@ -183,11 +183,15 @@ def related_article(request, doi, type = None):
     data = []
     notes = []
     
-    from_article = article_meta(doi)
+    try:
+        from_article = article_meta(doi)[0]
+    except IndexError:
+        from_article = None
     
     # Article does not exist, return 404 now
     if from_article is None:
         return Response(status=status.HTTP_404_NOT_FOUND)
+        
     
     # Prepare the response
     item = {}
@@ -208,7 +212,7 @@ def related_article(request, doi, type = None):
     for article in related_article:
         related_item = {}
         #if related_article.get("ext_link_type") == "doi":
-        meta = article_meta(article['to_doi'])
+        meta = article_meta(article['to_doi'])[0]
 
         related_item['doi'] = article.get("xlink_href")
         related_item['related_article_type'] = article.get("related_article_type")
