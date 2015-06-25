@@ -3,7 +3,7 @@ import requests
 import json
 from xml.etree import ElementTree
 from elifetools import parseJATS as parser
-from elifedbtools import database
+from elifedbtools import database, testdata
 
 # Create your models here.
 
@@ -227,7 +227,8 @@ def article_related_article(doi, link_type="doi"):
     Given a DOI, get related articles, if any
     """
     json_data = []
-    for item in database.related(doi):
+    related_articles = testdata.load_related_article_data()
+    for item in database.related(related_articles, doi):
         json_data.append(item.as_json())
     return json_data
 
@@ -237,6 +238,7 @@ def article_meta(doi):
     Given a DOI, get article details
     """
     json_data = []
-    for item in database.article(doi):
+    articles = testdata.load_article_data()
+    for item in database.article(articles, doi):
         json_data.append(item.as_json())
     return json_data
