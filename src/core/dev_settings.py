@@ -30,9 +30,9 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = (
     #'django.contrib.admin',
-    #'django.contrib.auth',
-    #'django.contrib.contenttypes',
-    #'django.contrib.sessions',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
     #'django.contrib.messages',
     'django.contrib.staticfiles',
 
@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     
     'rest_framework',
     'rest_framework_swagger',
+    'rest_framework.authtoken'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -86,3 +87,14 @@ USE_TZ = True
 STATIC_URL = '/static/'
 # project root - the dir above 'src'
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'collected-static')
+
+# Django REST Framework settings
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}

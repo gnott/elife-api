@@ -6,6 +6,12 @@ from rest_framework.decorators import api_view
 import requests
 from models import *
 
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+import requests
+from models import *
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 
 def redirect(dest):
     return HttpResponseRedirect(dest)
@@ -234,5 +240,17 @@ def related_article(request, doi, type = None):
     return Response(response_list)
 
 
-
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+def hello_world_auth(request, format=None):
+    """
+    Hello world that requires token authentication to be provided
+    """
+    content = {
+        'message': 'Hello, world!',
+        'user': unicode(request.user),  # `django.contrib.auth.User` instance.
+        'auth': unicode(request.auth),  # None
+    }
+    return Response(content)
     

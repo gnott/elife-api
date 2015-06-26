@@ -4,6 +4,8 @@ import json
 from xml.etree import ElementTree
 from elifetools import parseJATS as parser
 from elifedbtools import database, testdata
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 # Create your models here.
 
