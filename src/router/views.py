@@ -7,10 +7,8 @@ import requests
 from models import *
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-import requests
-from models import *
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 
 def redirect(dest):
@@ -180,12 +178,13 @@ def media_xlink_format(request, doi, xlink, type):
     """
     return media(request, doi, xlink, type)
 
-@api_view(['GET'])
+@api_view(['GET','POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def related_article(request, doi, type = None):
     """
     Get related articles and details about those articles
     """
-    
     data = []
     notes = []
     
@@ -197,6 +196,15 @@ def related_article(request, doi, type = None):
     # Article does not exist, return 404 now
     if from_article is None:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    # Handle a POST
+    if request.method == 'POST':
+        print "request was a post"
+        
+        if hasattr(request, 'DATA'):
+            print json.dumps(request.DATA)
+        else:
+            print "POST had no request data"
         
     
     # Prepare the response
