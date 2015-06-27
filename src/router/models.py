@@ -3,9 +3,11 @@ import requests
 import json
 from xml.etree import ElementTree
 from elifetools import parseJATS as parser
-from elifedbtools import database, testdata
+from elifedbtools import testdata as database
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+
+database.load_data()
 
 # Create your models here.
 
@@ -229,8 +231,7 @@ def article_related_article(doi, link_type="doi"):
     Given a DOI, get related articles, if any
     """
     json_data = []
-    related_articles = testdata.load_related_article_data()
-    for item in database.related(related_articles, doi):
+    for item in database.related(doi):
         json_data.append(item.as_json())
     return json_data
 
@@ -240,7 +241,6 @@ def article_meta(doi):
     Given a DOI, get article details
     """
     json_data = []
-    articles = testdata.load_article_data()
-    for item in database.article(articles, doi):
+    for item in database.article(doi):
         json_data.append(item.as_json())
     return json_data

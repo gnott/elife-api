@@ -202,6 +202,11 @@ def related_article(request, doi, type = None):
         print "request was a post"
         
         if hasattr(request, 'DATA'):
+            object_json = {'from_doi': 'a',
+                           'to_doi': 'd',
+                           'related_article_type': 'commentary-article',
+                           'xlink_href': 'd'}
+            database.add_item('RelatedArticle', object_json, database.related_articles)
             print json.dumps(request.DATA)
         else:
             print "POST had no request data"
